@@ -1,0 +1,14 @@
+{
+  "name": "ecommerce",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "start": "concurrently \"yarn --cwd client dev\" \"yarn --cwd server develop\"",
+    "start-client": "yarn start --cwd client",
+    "start-backend": "yarn start --cwd backend"
+  },
+  "dependencies": {
+    "concurrently": "^7.0.0"
+  },
+  "license": "MIT"
+}

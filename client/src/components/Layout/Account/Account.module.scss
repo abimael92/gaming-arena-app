@@ -1,0 +1,55 @@
+@import '~/src/scss/index.scss';
+.account {
+  display: flex;
+  margin: 10px;
+  padding: 10px;
+
+  .button {
+    width: 62px;
+    height: 62px;
+    padding: 10px !important; /* Adjust padding to make it square */
+    transition: background-color 0.3s;
+    position: relative;
+    background-color: black !important;
+    opacity: 85%;
+    border: 2px solid transparent;
+    border-radius: 15px;
+    align-items: center;
+    display: block;
+    margin: 8px;
+
+    i {
+      font-size: 1.3em;
+      margin: 2px;
+    }
+
+    &:hover {
+      border: 2px solid orange;
+      transform: scale(1.15);
+    }
+  }
+
+  .label,
+  .notifier {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    width: 20px;
+    height: 20px;
+    background-color: orange; /* Adjust color if necessary */
+    color: black;
+    border-radius: 50%;
+    font-size: 15px;
+    border: 1px solid black;
+    padding: 2px;
+  }
+
+  .notifier {
+    background-color: greenyellow;
+  }
+
+  .userName {
+    display: block;
+    color: white;
+  }
+}
