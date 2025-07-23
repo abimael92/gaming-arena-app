@@ -1,0 +1,36 @@
+/* landingPage.module.scss */
+@import '@/scss/index.scss'; // Import global styles
+
+.logoTitle {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  margin: 2rem;
+  background-color: $primary;
+  border: 1px solid black;
+  border-radius: 10px;
+  opacity: 1;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 1);
+  &:hover {
+    box-shadow: 0 0 10px #fff200;
+  }
+}
+
+.imageContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+
+  .imageWrapper {
+    display: flex;
+    align-items: center;
+  }
+
+  .imageWrapper img {
+    filter: brightness(1) invert(1);
+    height: auto;
+    width: auto;
+    max-height: 40px;
+  }
+}
