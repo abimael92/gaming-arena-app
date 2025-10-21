@@ -86,19 +86,24 @@ export default function LandingGuestPage() {
             {/* Interactive CTA Section */}
             <div className={styles.ctaSection}>
               <div className={styles.actions}>
-                <Button size="huge" className={styles.tryOutButton}>
-                  <Link href="join/sign-in" legacyBehavior>
-                    <a>
-                      Start Your Journey
-                      <span>→</span>
-                    </a>
-                  </Link>
+                <Button
+                  size="huge"
+                  className={styles.tryOutButton}
+                  as={Link}
+                  href="/join/sign-in"
+                >
+                  Start Your Journey
+                  <span>→</span>
                 </Button>
 
-                <Button size="large" basic className={styles.secondaryButton}>
-                  <Link href="/games" legacyBehavior>
-                    <a>Explore Games</a>
-                  </Link>
+                <Button
+                  size="large"
+                  basic
+                  className={styles.secondaryButton}
+                  as={Link}
+                  href="/games"
+                >
+                  Explore Games
                 </Button>
               </div>
 
