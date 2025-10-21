@@ -1,56 +1,52 @@
-/* landingPage.module.scss */
-
-@import '@/scss/index.scss'; // Import global styles
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import '@/scss/index.scss';
 
 .container {
   height: 100vh;
   max-height: 100vh;
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  flex-direction: column;
+  // position: relative;
 }
 
 .topBar {
-  position: absolute;
+  position: relative;
   top: 0;
   left: 0;
   width: 100%;
   display: flex;
   justify-content: space-between;
-  padding: 15px;
-
-  > a {
-    > img {
-      height: 30px;
-    }
-
-    > i {
-      font-size: 26px;
-      color: $danger;
-      margin: 0;
-    }
-  }
-}
-.imageContainer {
-  display: flex;
-  justify-content: center;
   align-items: center;
-  cursor: pointer;
-  transition: transform 0.3s; /* Add transition effect for smooth hover */
+  padding: 20px;
+  z-index: 100;
+  flex-shrink: 0;
 
-  &:hover {
-    transform: scale(1.1); /* Scale up the image container on hover */
-  }
+  .closeButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
 
-  .imageWrapper {
-    margin: 0 10px;
-    display: inline-block;
+    &:hover {
+      background: $danger;
+      transform: scale(1.1);
+    }
+
+    i {
+      font-size: 20px;
+      color: white;
+      margin: 0 !important;
+    }
   }
 }
-.blockContainer {
-  display: contents;
-  overflow: hidden;
+
+.content {
+  display: flex;
+  flex: 1;
+  height: 100%;
 }
 
 .blockLeft {
@@ -58,13 +54,48 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.05s ease-out;
+  padding: 80px 40px 40px;
+  background: $background-primary;
 }
 
 .blockRight {
+  width: 50%;
   background-image: url('/images/videogames-wallpaper.png');
   background-position: center;
   background-size: cover;
-  height: 100%;
-  width: 50%;
+  background-repeat: no-repeat;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .content {
+    flex-direction: column;
+  }
+
+  .blockLeft,
+  .blockRight {
+    width: 100%;
+  }
+
+  .blockLeft {
+    padding: 100px 20px 20px;
+    min-height: 60vh;
+  }
+
+  .blockRight {
+    height: 40vh;
+  }
+
+  .topBar {
+    padding: 15px;
+    
+    .closeButton {
+      width: 35px;
+      height: 35px;
+      
+      i {
+        font-size: 18px;
+      }
+    }
+  }
 }
