@@ -6,10 +6,10 @@ import LogoTitle from '@/components/Layout/LogoTitle';
 import styles from './TopBar.module.scss';
 
 export function TopBar(props) {
-  const { isOpenSearch } = props;
+  const { isOpenSearch, className = '' } = props;
 
   return (
-    <div className={styles.topBar}>
+    <header className={`${styles.topBar} ${className}`}>
       <div className={styles.left}>
         <LogoTitle size="SMALL" />
       </div>
@@ -21,6 +21,6 @@ export function TopBar(props) {
       <div className={styles.right}>
         <Account />
       </div>
-    </div>
+    </header>
   );
 }
