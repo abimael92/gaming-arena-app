@@ -1,18 +1,18 @@
-/* landingPage.module.scss */
-@import '@/scss/index.scss'; // Import global styles
+@import '@/scss/index.scss';
 
 .logoTitle {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  padding: 8px 12px;
-  margin: 2rem;
+  padding: 8px 16px;
   background-color: $primary;
-  border: 1px solid black;
-  border-radius: 10px;
-  opacity: 1;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 1);
+  border: 2px solid black;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+  transition: all 0.3s ease;
+  
   &:hover {
-    box-shadow: 0 0 10px #fff200;
+    box-shadow: 0 0 15px #fff200, 0 4px 20px rgba(0, 0, 0, 0.9);
+    transform: translateY(-2px);
   }
 }
 
@@ -25,12 +25,13 @@
   .imageWrapper {
     display: flex;
     align-items: center;
+    gap: 8px;
   }
 
-  .imageWrapper img {
+  img {
     filter: brightness(1) invert(1);
     height: auto;
-    width: auto;
     max-height: 40px;
+    object-fit: contain;
   }
 }
