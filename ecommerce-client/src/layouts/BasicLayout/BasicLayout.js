@@ -15,6 +15,7 @@ export function BasicLayout(props) {
     noFooter = false,
     noPadding = false,
     className = "",
+    headerProps = {},
   } = props;
 
   const router = useRouter();
@@ -32,9 +33,12 @@ export function BasicLayout(props) {
       styles.layoutWrapper,
       className,
       routeClass,
-      { [styles.relative]: relative }
+      {
+        [styles.relative]: relative,
+        [styles.mounted]: mounted
+      }
     )}>
-      <TopBar isOpenSearch={isOpenSearch} />
+      {/* <TopBar isOpenSearch={isOpenSearch} {...headerProps} /> */}
 
       <main
         className={classNames(styles.mainContent, {
@@ -42,6 +46,7 @@ export function BasicLayout(props) {
           [styles.fullWidth]: fullWidth,
         })}
         role="main"
+        aria-label="Main content"
       >
         {isContainer ? (
           <Container>
@@ -83,17 +88,17 @@ export function CenteredLayout(props) {
 }
 
 export function SidebarLayout(props) {
-  const { sidebar, children, sidebarLeft = true } = props;
+  const { sidebar, children, sidebarLeft = true, ...layoutProps } = props;
 
   return (
-    <BasicLayout {...props}>
+    <BasicLayout {...layoutProps}>
       <div className={classNames(styles.sidebarLayout, {
         [styles.sidebarRight]: !sidebarLeft
       })}>
-        <aside className={styles.sidebar}>
+        <aside className={styles.sidebar} aria-label="Sidebar">
           {sidebar}
         </aside>
-        <main className={styles.main}>
+        <main className={styles.main} aria-label="Main content">
           {children}
         </main>
       </div>
