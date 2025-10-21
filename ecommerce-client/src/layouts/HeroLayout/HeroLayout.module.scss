@@ -5,11 +5,10 @@
   max-height: 100vh;
   display: flex;
   flex-direction: column;
-  // position: relative;
 }
 
 .topBar {
-  position: relative;
+  position: sticky;
   top: 0;
   left: 0;
   width: 100%;
@@ -19,6 +18,7 @@
   padding: 20px;
   z-index: 100;
   flex-shrink: 0;
+  background: $background-primary;
 
   .closeButton {
     display: flex;
@@ -47,6 +47,7 @@
   display: flex;
   flex: 1;
   height: 100%;
+  // margin-top: 300px; // Added 300px margin
 }
 
 .blockLeft {
@@ -54,7 +55,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 80px 40px 40px;
+  padding: 0px 40px 40px;
   background: $background-primary;
 }
 
@@ -70,6 +71,7 @@
 @media (max-width: 768px) {
   .content {
     flex-direction: column;
+    margin-top: 200px; // Smaller margin on mobile
   }
 
   .blockLeft,
