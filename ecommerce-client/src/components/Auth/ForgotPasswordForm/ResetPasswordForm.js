@@ -6,7 +6,7 @@ import styles from './ResetPasswordForm.module.scss';
 
 const authCtrl = new Auth();
 
-export function ResetPasswordForm() {
+export default function ResetPasswordForm() {
   const [success, setSuccess] = useState(false);
 
   const formik = useFormik({
