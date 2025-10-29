@@ -96,7 +96,7 @@ export default function LandingGuestPage() {
                   <span>→</span>
                 </Button>
 
-                <Button
+                {/* <Button
                   size="large"
                   basic
                   className={styles.secondaryButton}
@@ -104,7 +104,7 @@ export default function LandingGuestPage() {
                   href="/games"
                 >
                   Explore Games
-                </Button>
+                </Button> */}
               </div>
 
               {/* Stats Counter */}
