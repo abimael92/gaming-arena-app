@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Image } from 'semantic-ui-react';
 import Link from 'next/link';
 import styles from './LogoTitle.module.scss';
@@ -9,34 +9,65 @@ const SIZES = {
   SMALL: 80,
 };
 
-const LogoTitle = ({ size }) => {
-  const imgGame = SIZES[size] || SIZES.MEDIUM; // Default to MEDIUM if size is invalid
+const LogoTitle = ({ size = 'MEDIUM' }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  const imgGame = SIZES[size] || SIZES.MEDIUM;
   const imgGaming = Math.floor(imgGame * 0.7);
 
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
+
   return (
-    <Link href="/">
-      <div className={styles.logoTitle}>
-
-        <div className={styles.imageContainer}>
-          <div className={styles.imageWrapper}>
-            <Image
-              src="/images/gamingCtrl.png"
-              alt="Game"
-              height={40}
-              width={40}
-              style={{ objectFit: 'contain' }}
-            />
-            <Image
-              src="/images/gaming_title.png"
-              alt="Gaming"
-              height={24}
-              style={{ marginLeft: '8px', objectFit: 'contain' }}
-            />
-
+    <Link href="/" legacyBehavior>
+      <div
+        className={`${styles.logoTitle} ${isLoaded ? styles.loaded : ''} ${isHovered ? styles.hovered : ''}`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <div className={styles.logoBackground}>
+          <div className={styles.glowEffect}></div>
+          <div className={styles.particles}>
+            {[...Array(5)].map((_, i) => (
+              <div
+                key={i}
+                className={styles.particle}
+              ></div>
+            ))}
           </div>
-        </div >
+
+          <div className={styles.imageContainer}>
+            <div className={styles.imageWrapper}>
+              <div className={styles.iconContainer}>
+                <Image
+                  src="/images/gamingCtrl.png"
+                  alt="Game Controller"
+                  width={64}  // Increased from 48
+                  height={64} // Increased from 48
+                  className={styles.controllerIcon}
+                  style={{ objectFit: 'contain' }}
+                />
+                <div className={styles.pulseRing}></div>
+              </div>
+
+              <div className={styles.titleContainer}>
+                <Image
+                  src="/images/gaming_title.png"
+                  alt="Gaming"
+                  width={260}  // Increased from 120
+                  height={80}  // Increased from 28
+                  className={styles.titleText}
+                  style={{ objectFit: 'contain' }}
+                />
+                <div className={styles.underline}></div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </Link >
+    </Link>
   );
 };
 
