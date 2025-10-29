@@ -71,7 +71,7 @@
 @media (max-width: 768px) {
   .content {
     flex-direction: column;
-    margin-top: 200px; // Smaller margin on mobile
+    margin-top: 0px; // Smaller margin on mobile
   }
 
   .blockLeft,
@@ -80,11 +80,12 @@
   }
 
   .blockLeft {
-    padding: 100px 20px 20px;
+    padding: 0px 20px 20px;
     min-height: 60vh;
   }
 
   .blockRight {
+    display: none;
     height: 40vh;
   }
 
