@@ -9,8 +9,8 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 0 2rem 2rem; // ADD TOP PADDING FOR THE TOP BAR
-    margin-top: 80px; // Add margin-top instead of padding-top
+  padding: 0 2rem 2rem; 
+    margin-top: -20px;
 }
 
 @media (max-width: 768px) {
