@@ -11,9 +11,11 @@ export async function authFetch(url, params) {
 
   if (!token) {
     logout();
+    return;
   } else {
     if (tokenCtrl.hasExpired(token)) {
       logout();
+      return;
     } else {
       const paramsTemp = {
         ...params,
@@ -24,8 +26,16 @@ export async function authFetch(url, params) {
       };
 
       try {
-        return await fetch(url, paramsTemp);
+        const response = await fetch(url, paramsTemp);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return response;
+
       } catch (error) {
+        console.error('Fetch error:', error);
         return error;
       }
     }

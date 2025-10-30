@@ -4,14 +4,24 @@ export class User {
   async getMe() {
     try {
       const url = `${ENV.API_URL}/${ENV.ENDPOINTS.USERS_ME}`;
+      console.log('Fetching from:', url);
 
       const response = await authFetch(url);
+
+      if (!response) {
+        throw new Error('No response from server');
+      }
+
+      console.log('Response status:', response.status); // Debug log
+
       const result = await response.json();
+      console.log('User data:', result);
 
       if (response.status !== 200) throw result;
 
       return result;
     } catch (error) {
+      console.error('Error in getMe:', error);
       throw error;
     }
   }

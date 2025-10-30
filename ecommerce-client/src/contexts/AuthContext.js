@@ -24,8 +24,16 @@ export function AuthProvider(props) {
 
       if (tokenCtrl.hasExpired(token)) {
         logout();
+        setLoading(false);
       } else {
-        await login(token);
+        try {
+          await login(token);
+        } catch (error) {
+          console.error('Auto-login failed:', error);
+          logout();
+        } finally {
+          setLoading(false);
+        }
       }
     })();
   }, []);
@@ -34,11 +42,12 @@ export function AuthProvider(props) {
     try {
       tokenCtrl.setToken(token);
       const response = await userCtrl.getMe();
+
       setUser(response);
       setToken(token);
       setLoading(false);
     } catch (error) {
-      console.error(error);
+      console.error('Login error:', error);
       setLoading(false);
     }
   };

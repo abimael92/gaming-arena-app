@@ -38,7 +38,7 @@ export function BasicLayout(props) {
         [styles.mounted]: mounted
       }
     )}>
-      {/* <TopBar isOpenSearch={isOpenSearch} {...headerProps} /> */}
+      <TopBar isOpenSearch={isOpenSearch} {...headerProps} />
 
       <main
         className={classNames(styles.mainContent, {
