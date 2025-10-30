@@ -128,21 +128,21 @@ export class Game {
   }
 
   async getBySlug(slug) {
-    // console.log('\n\nslug: ', slug, '\n\n ');
+    console.log('\n\nslug: ', slug, '\n\n ');
     try {
       const filters = `filters[slug][$eq]=${slug}`;
       const populate = `populate[0]=wallpaper&populate[1]=cover&populate&populate[2]=screenshots&populate[3]=platform&populate[4]=platform.icon`;
       const url = `${ENV.API_URL}/${ENV.ENDPOINTS.GAME}?${filters}&${populate}`;
 
-      // console.log('\n\nFetching data from URL: ', url, '\n\n ');
+      console.log('\n\nFetching data from URL: ', url, '\n\n ');
 
       const response = await fetch(url);
 
-      // console.log('Response:', response);
+      console.log('Response:', response);
 
       const result = await response.json();
 
-      // console.log('Response:', result);
+      console.log('Response:', result);
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
