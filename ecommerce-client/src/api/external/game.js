@@ -45,10 +45,10 @@ export class ExternalGameAPI {
             const response = await fetch(url, options);
             const gameDetails = await response.json();
             // console.log('Details of the game:', gameDetails);
-            return gameDetails; // Return details of the game
+            return gameDetails;
         } catch (error) {
             console.error(error);
-            throw error; // Throw error for error handling in the calling function
+            throw error;
         }
     }
 }
