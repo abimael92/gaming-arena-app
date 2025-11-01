@@ -1,6 +1,6 @@
 {
   "name": "ecommerce-client",
-  "version": "0.1.0",
+  "version": "2.1.5",
   "private": true,
   "scripts": {
     "dev": "next dev --port 3333",
