@@ -1,4 +1,4 @@
-import { Form } from 'semantic-ui-react';
+import { Form, Button } from 'semantic-ui-react';
 import { useFormik } from 'formik';
 import { User } from '@/api';
 import { useAuth } from '@/hooks';
@@ -7,7 +7,7 @@ import styles from './ChangeEmailForm.module.scss';
 
 const userCtrl = new User();
 
-export function ChangeEmailForm() {
+export function ChangeEmailForm({ onCancel }) {
   const { user, updateUser } = useAuth();
 
   const formik = useFormik({
@@ -19,15 +19,23 @@ export function ChangeEmailForm() {
         await userCtrl.updateMe(user.id, { email: formValue.email });
         updateUser('email', formValue.email);
         formik.handleReset();
+        if (onCancel) onCancel();
       } catch (error) {
         console.error(error);
       }
     },
   });
 
+  const handleCancel = () => {
+    formik.handleReset();
+    if (onCancel) onCancel();
+  };
+
   return (
     <Form onSubmit={formik.handleSubmit} className={styles.form}>
-      <label>Change E-mail address</label>
+      <div className={styles.formHeader}>
+        <h4>Change E-mail address</h4>
+      </div>
 
       <Form.Input
         name="email"
@@ -43,9 +51,19 @@ export function ChangeEmailForm() {
         onChange={formik.handleChange}
         error={formik.errors.repeatEmail}
       />
-      <Form.Button type="submit" loading={formik.isSubmitting}>
-        Submit
-      </Form.Button>
+
+      <div className={styles.actionButtons}>
+        <Form.Button type="submit" loading={formik.isSubmitting} primary>
+          Update Email
+        </Form.Button>
+        <Button
+          type="button"
+          onClick={handleCancel}
+          className={styles.cancelButton}
+        >
+          Cancel
+        </Button>
+      </div>
     </Form>
   );
 }

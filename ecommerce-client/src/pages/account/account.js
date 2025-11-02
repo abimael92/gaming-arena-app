@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Tab } from 'semantic-ui-react';
+import { Tab, Button, Icon } from 'semantic-ui-react';
 import { useRouter } from 'next/router';
 import { BasicLayout } from '@/layouts';
 import { useAuth } from '@/hooks';
@@ -20,6 +20,7 @@ export default function AccountPage() {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [reload, setReload] = useState(false);
+  const [activeEdit, setActiveEdit] = useState(null);
 
   if (!user) {
     router.push('/');
@@ -27,6 +28,9 @@ export default function AccountPage() {
   }
 
   const onReload = () => setReload((prevState) => !prevState);
+  const handleEditClick = (type) => setActiveEdit(type);
+  const handleCancelEdit = () => setActiveEdit(null);
+
 
   const panes = [
     {
@@ -60,11 +64,46 @@ export default function AccountPage() {
     {
       menuItem: { key: 20, icon: 'settings', content: 'Settings' },
       render: () => (
-        <Tab.Pane attached={false} key={99}>
+        <Tab.Pane attached={false} style={{ fontSize: 'x-large' }}>
           <Settings.ChangeNameForm />
+          <Separator height={30} />
           <div className={styles.containerForms}>
-            <Settings.ChangeEmailForm />
-            <Settings.ChangePasswordForm />
+            <div className={styles.settingsSection}>
+              <h3>Email Settings</h3>
+              {activeEdit === 'email' ? (
+                <div>
+                  <Settings.ChangeEmailForm onCancel={handleCancelEdit} />
+                </div>
+              ) : (
+                <div className={styles.settingRow}>
+                  <span>Current email: <strong>{user.email}</strong></span>
+                  <Button
+                    primary
+                    onClick={() => handleEditClick('email')}
+                  >
+                    Change Email
+                  </Button>
+                </div>
+              )}
+            </div>
+            <div className={styles.settingsSection}>
+              <h3>Password Settings</h3>
+              {activeEdit === 'password' ? (
+                <div>
+                  <Settings.ChangePasswordForm onCancel={handleCancelEdit} />
+                </div>
+              ) : (
+                <div className={styles.settingRow}>
+                  <span>Password: ********</span>
+                  <Button
+                    primary
+                    onClick={() => handleEditClick('password')}
+                  >
+                    Change Password
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
           <Separator height={80} />
         </Tab.Pane>
