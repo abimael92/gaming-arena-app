@@ -3,3 +3,14 @@
   right: 0;
   top: 0;
 }
+
+
+.no-padding-modal {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.no-padding-modal :global(.ui.modal) {
+  padding: 0 !important;
+  margin: 0 !important;
+}
