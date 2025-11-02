@@ -16,7 +16,7 @@ export function AddGame(props) {
         <Icon name="add" style={{ marginLeft: '5px' }} /> Create
       </Button>
 
-      <BasicModal show={show} onClose={onOpenClose} title="New game">
+      <BasicModal show={show} onClose={onOpenClose} title="" lassName="no-padding-modal">
         <GameForm onClose={onOpenClose} onReload={onReload} />
       </BasicModal>
     </>
