@@ -2,66 +2,153 @@
 
 .footer {
   background-color: $background-tertiary;
-  padding: 30px 0;
+  padding: 40px 0 20px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.6s ease;
+  
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .columns {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 40px;
+  align-items: start;
 
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    text-align: center;
+  }
+}
 
-  > div {
-    width: 33.33%;
-    margin-left: 5%;
-
-    > a > img {
-      width: 150px;
+.brand {
+  > a > img {
+    width: 150px;
+    transition: transform 0.3s ease;
+    
+    &:hover {
+      transform: scale(1.05);
     }
+  }
+  
+  .tagline {
+    color: $text-secondary;
+    margin-top: 10px;
+    font-size: 0.9em;
+    line-height: 1.4;
+  }
+}
 
-    > ul {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      margin: 0;
-      padding: 0;
+.links {
+  h4 {
+    color: $text-primary;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    font-weight: 600;
+  }
+  
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  
+  .link {
+    color: $text-secondary;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateX(-10px);
+    animation: slideIn 0.5s ease forwards;
+    
+    &:hover {
+     color: var(--primary-color);
+      transform: translateX(5px);
     }
+  }
+}
 
-    &.social {
-
-      gap: 10px; // Adjust the gap between buttons as needed
-
-      display: flex;
-      justify-content: flex-end;
-      align-items: flex-start;
-
-      > a {
-
-        margin-left: 10px;
-
-        // height: 3.5em;
-        // width: 3.5em;
-        // display: flex;
-        // align-items: center;
-        // justify-content: center;
-        // text-align: center;
-        padding: 10px 2px 8px 10px;
-      }
-
-      .icon {
-        font-size: 1.5em;
-        padding: 2px;
-        margin: 0 auto;
-      }
+.social {
+  h4 {
+    color: $text-primary;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    font-weight: 600;
+  }
+  
+  .socialButtons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    
+    @media (max-width: 768px) {
+      justify-content: center;
     }
+  }
+  
+  .socialButton {
+    opacity: 0;
+    transform: scale(0.8);
+    animation: scaleIn 0.5s ease forwards;
+    transition: all 0.3s ease !important;
+    
+    &:hover {
+      transform: scale(1.1) !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+  }
+  
+  .icon {
+    font-size: 1.3em;
+    margin: 0 !important;
   }
 }
 
 .copyright {
-  margin-top: 30px;
-  padding-top: 30px;
+  margin-top: 40px;
+  padding-top: 20px;
   border-top: 1px solid $border-primary;
-
+  text-align: center;
+  
   > span {
     color: $text-secondary;
+    font-size: 0.9em;
   }
+}
+
+// Animations
+@keyframes slideIn {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// Hover effects for all interactive elements
+@media (hover: hover) {
+  .link, .socialButton {
+    cursor: pointer;
+  }
+}
+
+// Focus styles for accessibility
+.link:focus,
+.socialButton:focus {
+  outline: 2px solid  var(--primary-color);
+  outline-offset: 2px;
 }
