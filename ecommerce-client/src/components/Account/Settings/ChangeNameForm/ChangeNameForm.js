@@ -8,7 +8,7 @@ import styles from './ChangeNameForm.module.scss';
 const userCtrl = new User();
 
 export function ChangeNameForm() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
 
   const formik = useFormik({
     initialValues: initialValues(user.firstname, user.lastname),
@@ -17,6 +17,7 @@ export function ChangeNameForm() {
     onSubmit: async (formValue) => {
       try {
         await userCtrl.updateMe(user.id, formValue);
+        updateUser();
       } catch (error) {
         console.error(error);
       }
