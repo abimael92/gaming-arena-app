@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Message, Image, Label, Input, Icon, Confirm } from 'semantic-ui-react';
+import { Button, Form, Message, Image, Label, Input, Icon, Confirm, Grid } from 'semantic-ui-react';
 import { useFormik } from "formik";
 import { Game, Platform } from '@/api';
 
@@ -18,45 +18,39 @@ export function GameForm(props) {
   const [screenshotsList, setScreenshotsList] = useState(initialValues(game));
   const [open, setOpen] = useState(false);
   const [selectedScreenshot, setSelectedScreenshot] = useState(null);
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const formik = useFormik({
     initialValues: initialValues(game),
     validationSchema: validationSchema(),
     validateOnChange: false,
     onSubmit: async (formValue) => {
-      // console.log('values sent: ', formValue);
+      setIsSubmitting(true);
       formValue.platform = { id: formValue.platform };
       const changedValues = getChangedValues(initialFormValues, formValue);
 
       try {
-
         if (gameId) {
-
           if (Object.keys(changedValues).length > 0) {
             await gameCtrl.putGame(changedValues, gameId);
-
           } else {
             console.log('No changes detected.');
           }
-
         } else {
-
           await gameCtrl.postGame(formValue);
         }
 
         formik.handleReset();
         onReload();
         onClose();
-
       } catch (error) {
         console.error(error);
         const errorMessage =
           error?.response?.data?.error?.message ||
           'Failed to add game. Please try again later.';
-
-        formik.setSubmitting(false);
         formik.setStatus({ gameError: errorMessage });
+      } finally {
+        setIsSubmitting(false);
       }
     },
   });
@@ -71,13 +65,64 @@ export function GameForm(props) {
     return changedValues;
   };
 
-  const formatDate = (dateString) => {
-    // Assuming dateString is in "ddMMyyyy" format
-    const day = dateString.slice(0, 2);
-    const month = dateString.slice(2, 4);
-    const year = dateString.slice(4, 8);
+  const handleTitleChange = (event) => {
+    const title = event.target.value;
+    const slug = generateSlug(title);
+    formik.setValues({
+      ...formik.values,
+      title: title,
+      slug: slug,
+    });
+  };
 
-    return `${year}-${month}-${day}`; // Format as "yyyy-MM-dd"
+  const generateSlug = (title) => {
+    return title.trim().toLowerCase().replace(/\s+/g, '-');
+  };
+
+  const handleFileUpload = (event, fieldName) => {
+    const file = event.target.files[0];
+    formik.setFieldValue(fieldName, file);
+  };
+
+  const handleScreenShotsUpload = (event, fieldName) => {
+    const files = Array.from(event.target.files);
+    const currentScreenshots = Array.isArray(formik.values[fieldName]) ? formik.values[fieldName] : [];
+    const updatedScreenshots = [...currentScreenshots, ...files];
+
+    setScreenshotsList(updatedScreenshots);
+    formik.setFieldValue(fieldName, updatedScreenshots);
+  };
+
+  const handleDeleteScreenshot = (screenshot) => {
+    const updatedScreenshots = screenshots.filter((s) => s !== screenshot);
+    setScreenshotsList(updatedScreenshots);
+    formik.setFieldValue('screenshots', updatedScreenshots);
+    setOpen(false);
+    setSelectedScreenshot(null);
+  };
+
+  const handleConfirmDelete = (screenshot) => {
+    setSelectedScreenshot(screenshot);
+    setOpen(true);
+  };
+
+  const extractVideo = (url) => {
+    const standardRegex = /^https:\/\/www\.youtube\.com\/watch\?v=([^&]+)/;
+    const shortRegex = /^https:\/\/youtu\.be\/([^?]+)/;
+    const standardMatch = url.match(standardRegex);
+    const shortMatch = url.match(shortRegex);
+
+    if (standardMatch) return standardMatch[1];
+    if (shortMatch) return shortMatch[1];
+    return null;
+  };
+
+  const extractImage = (img) => {
+    return {
+      id: img?.id ?? '',
+      name: img?.attributes?.name ?? 'Not Found',
+      thumbnailUrl: img?.attributes?.formats?.thumbnail?.url ?? '/images/not-found.jpeg',
+    };
   };
 
   const {
@@ -94,105 +139,21 @@ export function GameForm(props) {
     screenshots
   } = formik.values;
 
-  const handleTitleChange = (event) => {
-    const title = event.target.value;
-    const slug = generateSlug(title);
-    formik.setValues({
-      ...formik.values,
-      title: title,
-      slug: slug,
-    });
-  };
-
-  const generateSlug = (title) => {
-    return title.trim().toLowerCase().replace(/\s+/g, '-');
-  };
-
-  const handleReleaseDateChange = (event) => {
-    const { name, value } = event.target;
-    const formattedDate = formatDate(value); // Format the date to "yyyy-MM-dd"
-    formik.setFieldValue(name, formattedDate);
-  };
-
-  const handleFileUpload = (event, fieldName) => {
-    const file = event.target.files[0];
-    // console.log('Selected file:', file);
-
-    formik.setFieldValue(fieldName, file);
-  };
-
-  const handleScreenShotsUpload = (event, fieldName) => {
-    const files = Array.from(event.target.files);
-    // console.log('Selected files:', files);
-
-    // Ensure formik.values[fieldName] is an array
-    const currentScreenshots = Array.isArray(formik.values[fieldName]) ? formik.values[fieldName] : [];
-
-    // Combine the current screenshots with the new files
-    const updatedScreenshots = [...currentScreenshots, ...files];
-
-    // Update the state and formik value with the new list of screenshots
-    setScreenshotsList(updatedScreenshots);
-    formik.setFieldValue(fieldName, updatedScreenshots);
-  };
-
-  const handleDeleteScreenshot = (screenshot) => {
-    // Remove the deleted screenshot from formik values
-    setScreenshotsList(screenshots.filter((s) => s !== screenshot));
-    formik.setFieldValue('screenshots', screenshotsList);
-    setOpen(false);
-  };
-
-  const handleConfirmDelete = (screenshot) => {
-    setSelectedScreenshot(screenshot);
-    setOpen(true);
-  };
-
-  const extractVideo = (url) => {
-    const standardRegex = /^https:\/\/www\.youtube\.com\/watch\?v=([^&]+)/;
-    const shortRegex = /^https:\/\/youtu\.be\/([^?]+)/;
-    const standardMatch = url.match(standardRegex);
-    const shortMatch = url.match(shortRegex);
-
-    if (standardMatch) return standardMatch[1];
-    if (shortMatch) return shortMatch[1];
-
-    return null;
-  };
-
   const showVideo = extractVideo(video);
-
-  const extractImage = (img) => {
-    const extractedImg = {
-      id: img?.id ?? '',
-      name: img?.attributes?.name ?? 'Not Found',
-      thumbnailUrl: img?.attributes?.formats?.thumbnail?.url ?? '/images/not-found.jpeg',
-    };
-
-    return extractedImg;
-  };
-
-
-
 
   useEffect(() => {
     (async () => {
       try {
         const response = await platformCtrl.getAll();
-        // console.log('res', response);
-
         const platformOptions = response.data.map(platform => ({
           id: platform.id,
           title: platform.attributes.title
         }));
-        // console.log('this are the titles: ', platformOptions);
         setPlatforms(platformOptions);
 
-        // Set initial platform value if game data exists
         if (game?.platform?.data?.id) {
           formik.setFieldValue('platform', game.platform.data.id);
         }
-
       } catch (error) {
         console.error(error);
       }
@@ -200,266 +161,282 @@ export function GameForm(props) {
   }, [game]);
 
   return (
-    <>
-      <Icon
-        name="close"
-        onClick={onClose}
-        style={{
-          position: 'absolute', top: '10px', right: '10px',
-          cursor: 'pointer', color: 'red', fontSize: ' x-large',
-        }}
-      />
+    <div className={styles.formContainer}>
+      <div className={styles.header}>
+        <h2 className={styles.title}>
+          {gameId ? 'Edit Game' : 'Add New Game'}
+        </h2>
+        <Icon
+          name="close"
+          onClick={onClose}
+          className={styles.closeIcon}
+        />
+      </div>
 
       <Form className={styles.gameForm} onSubmit={formik.handleSubmit}>
         {formik.status?.gameError && (
-          <Message negative>
+          <Message negative className={styles.errorMessage}>
             <Message.Header>Submit Failed</Message.Header>
-            <p style={{ color: 'red' }}>{formik.status.gameError}</p>
+            <p>{formik.status.gameError}</p>
           </Message>
         )}
 
         <LoaderComponent
-          active={formik.isSubmitting}
-          secondaryText="Uploading your new game. Sit tight, it won't take long!"
+          active={isSubmitting}
+          secondaryText={gameId ? "Updating game details..." : "Uploading your new game. Sit tight, it won't take long!"}
         />
 
-        <Form.Group widths="equal">
-          <Form.Input
-            label="Title"
-            name="title"
-            type="text"
-            placeholder="Title"
-            value={title}
-            onChange={(e) => {
-              handleTitleChange(e);
-            }}
-            error={formik.touched.title && formik.errors.title}
-          />
-          <Form.Input
-            label="Slug"
-            name="slug"
-            type="text"
-            placeholder="Slug"
-            value={slug}
-            readOnly
-          />
-        </Form.Group>
-
-        <Form.Group widths="equal">
-          <Form.Input
-            label="Price"
-            name="price"
-            type="number"
-            min="0"
-            placeholder="Price"
-            value={price}
-            onChange={formik.handleChange}
-            error={formik.touched.price && formik.errors.price}
-          />
-
-          <Form.Input
-            label="Discount"
-            name="discount"
-            type="number"
-            // min="0"
-            placeholder="Discount"
-            value={discount}
-            onChange={formik.handleChange}
-            error={formik.touched.discount && formik.errors.discount}
-          />
-        </Form.Group>
-
-        <Form.TextArea
-          className={styles.textArea}
-          label="Summary"
-          name="summary"
-          placeholder="Summary"
-          value={summary}
-          onChange={formik.handleChange}
-          error={formik.touched.summary && formik.errors.summary}
-        />
-
-        <Form.Group widths="equal">
-
-          <Form.Dropdown
-            label="Platform"
-            id="platform"
-            name="platform"
-            placeholder="Select a platform"
-            value={platform || ''} // Ensure value is either null/undefined or a valid value
-            options={[
-              { key: 'select', text: 'Select a platform', value: '' }, // Ensure the placeholder option has an empty string value
-              ...(platforms
-                ? platforms.map(platform => ({ key: platform.id, text: platform.title, value: platform.id }))
-                : [])
-            ]}
-            onChange={(e, { value }) => formik.setFieldValue('platform', value)}
-            onBlur={formik.handleBlur}
-            className={styles.dropdown}
-          />
-
-          <Form.Input
-            label="Release Date"
-            name="releaseDate"
-            type="date"
-            value={releaseDate}
-            onChange={formik.handleChange}
-            error={formik.touched.releaseDate && formik.errors.releaseDate}
-          />
-        </Form.Group>
-
-        <Form.Group widths="equal">
-          <Form.Input
-            label="Video/Trailer Link"
-            name="video"
-            type="text"
-            placeholder="Add Link"
-            value={video}
-            onChange={formik.handleChange}
-            error={formik.touched.video && formik.errors.video}
-          />
-
-        </Form.Group>
-
-        {videoError && <Message negative>{videoError}</Message>}
-
-        {showVideo && (
-          <div className={styles.videoPreviewContainer}>
-            <iframe
-              className={styles.videoPreview}
-              src={`https://www.youtube.com/embed/${showVideo}`}
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
-          </div>
-        )}
-
-        <Form.Field>
-          <label>Cover Image</label>
-          <Input
-            className={styles.customFileInput}
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleFileUpload(e, 'cover')}
-          />
-
-          {cover && cover instanceof File ? (
-            <div>
-              <Label pointing="above">Cover Image Preview</Label>
-              <Image
-                src={URL.createObjectURL(cover)}
-                size="small"
+        <Grid stackable>
+          <Grid.Row>
+            <Grid.Column width={8}>
+              <Form.Input
+                label="Title"
+                name="title"
+                type="text"
+                placeholder="Enter game title"
+                value={title}
+                onChange={handleTitleChange}
+                error={formik.touched.title && formik.errors.title}
+                className={styles.formInput}
               />
-            </div>
-          ) : (
-            cover && (
-              <div className={styles.imageGrid}>
-                {(() => {
-                  const extractedImage = extractImage(cover);
-                  return (
-                    <div className={styles.imageGridItem}>
-                      <Image src={extractedImage.thumbnailUrl} size="small" />
-                      <Label pointing="above">{extractedImage.name}</Label>
-                    </div>
-                  );
-                })()}
-              </div>
-            )
-          )}
-        </Form.Field>
-
-        <Form.Field>
-          <label>Wallpaper Image</label>
-          <Input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleFileUpload(e, 'wallpaper')}
-          />
-
-          {wallpaper && wallpaper instanceof File ? (
-            <div>
-              <Label pointing="above">Wallpaper Image Preview</Label>
-              <Image
-                src={URL.createObjectURL(wallpaper)}
-                size="small"
+            </Grid.Column>
+            <Grid.Column width={8}>
+              <Form.Input
+                label="Slug"
+                name="slug"
+                type="text"
+                placeholder="Auto-generated slug"
+                value={slug}
+                readOnly
+                className={styles.readOnlyInput}
               />
-            </div>
-          ) : (
-            wallpaper && (
-              <div className={styles.imageGrid}>
-                {(() => {
-                  const extractedImage = extractImage(wallpaper);
-                  return (
-                    <div className={styles.imageGridItem}>
-                      <Image src={extractedImage.thumbnailUrl} size="small" />
-                      <Label pointing="above">{extractedImage.name}</Label>
-                    </div>
-                  );
-                })()}
-              </div>
-            )
+            </Grid.Column>
+          </Grid.Row>
+
+          <Grid.Row>
+            <Grid.Column width={8}>
+              <Form.Input
+                label="Price"
+                name="price"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                value={price}
+                onChange={formik.handleChange}
+                error={formik.touched.price && formik.errors.price}
+                className={styles.formInput}
+                icon="dollar"
+                iconPosition="left"
+              />
+            </Grid.Column>
+            <Grid.Column width={8}>
+              <Form.Input
+                label="Discount (%)"
+                name="discount"
+                type="number"
+                min="0"
+                max="100"
+                placeholder="0"
+                value={discount}
+                onChange={formik.handleChange}
+                error={formik.touched.discount && formik.errors.discount}
+                className={styles.formInput}
+                icon="percent"
+                iconPosition="left"
+              />
+            </Grid.Column>
+          </Grid.Row>
+
+          <Grid.Row>
+            <Grid.Column width={16}>
+              <Form.TextArea
+                label="Summary"
+                name="summary"
+                placeholder="Describe the game..."
+                value={summary}
+                onChange={formik.handleChange}
+                error={formik.touched.summary && formik.errors.summary}
+                className={styles.textArea}
+                rows={4}
+              />
+            </Grid.Column>
+          </Grid.Row>
+
+          <Grid.Row>
+            <Grid.Column width={8}>
+              <Form.Dropdown
+                label="Platform"
+                placeholder="Select a platform"
+                fluid
+                selection
+                value={platform || ''}
+                options={[
+                  { key: 'select', text: 'Select a platform', value: '' },
+                  ...(platforms ? platforms.map(p => ({ key: p.id, text: p.title, value: p.id })) : [])
+                ]}
+                onChange={(e, { value }) => formik.setFieldValue('platform', value)}
+                error={formik.touched.platform && formik.errors.platform}
+                className={styles.dropdown}
+              />
+            </Grid.Column>
+            <Grid.Column width={8}>
+              <Form.Input
+                label="Release Date"
+                name="releaseDate"
+                type="date"
+                value={releaseDate}
+                onChange={formik.handleChange}
+                error={formik.touched.releaseDate && formik.errors.releaseDate}
+                className={styles.formInput}
+              />
+            </Grid.Column>
+          </Grid.Row>
+
+          <Grid.Row>
+            <Grid.Column width={16}>
+              <Form.Input
+                label="YouTube Video/Trailer URL"
+                name="video"
+                type="url"
+                placeholder="https://www.youtube.com/watch?v=..."
+                value={video}
+                onChange={formik.handleChange}
+                error={formik.touched.video && formik.errors.video}
+                className={styles.formInput}
+                icon="youtube"
+                iconPosition="left"
+              />
+            </Grid.Column>
+          </Grid.Row>
+
+          {showVideo && (
+            <Grid.Row>
+              <Grid.Column width={16}>
+                <div className={styles.videoPreviewContainer}>
+                  <Label ribbon color="red">Video Preview</Label>
+                  <iframe
+                    className={styles.videoPreview}
+                    src={`https://www.youtube.com/embed/${showVideo}`}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              </Grid.Column>
+            </Grid.Row>
           )}
-        </Form.Field>
 
-        <Form.Field>
-          <label>Screenshots</label>
-          <Input
-            type="file"
-            accept="image/*"
-            multiple // Allow multiple file selection
-            onChange={(e) => handleScreenShotsUpload(e, 'screenshots')}
-          />
-
-          {/* Display selected screenshots */}
-          {Array.isArray(screenshots) && screenshots.map((screenshot, index) => (
-            <div key={`${index}_grid`} className={styles.imageGrid}>
-              <div key={`${index}_gridItem`} className={styles.imageGridItem}>
-                {screenshot && screenshot instanceof File ? (
-                  <div>
-                    <Image src={URL.createObjectURL(screenshot)} size="small" />
-                    <Label pointing="above">{screenshot.name}</Label>
+          <Grid.Row columns={2}>
+            <Grid.Column>
+              <Form.Field className={styles.fileUpload}>
+                <label>Cover Image</label>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileUpload(e, 'cover')}
+                  className={styles.fileInput}
+                />
+                {cover && (
+                  <div className={styles.imagePreview}>
+                    <Label pointing="above">Preview</Label>
+                    <Image
+                      src={cover instanceof File ? URL.createObjectURL(cover) : extractImage(cover).thumbnailUrl}
+                      size="small"
+                      rounded
+                      className={styles.previewImage}
+                    />
                   </div>
-                ) : (
-                  screenshot && (
-                    <div className={styles.imageGridItem}>
-                      {(() => {
-                        const extractedImage = extractImage(screenshot);
-                        return (
-                          <>
-                            <div >
-                              <Icon
-                                name="delete"
-                                color="red"
-                                className={styles.trashIcon}
-                                link
-                                onClick={() => handleConfirmDelete(screenshot)}
-                              />
-                            </div>
-                            <Image src={extractedImage.thumbnailUrl} size="small" />
-                            <Label pointing="above" className={styles.imageLabel}>{extractedImage.name}</Label>
-                          </>
-                        );
-                      })()}
-                    </div>
-                  )
                 )}
-              </div>
-            </div>
-          ))}
+              </Form.Field>
+            </Grid.Column>
+            <Grid.Column>
+              <Form.Field className={styles.fileUpload}>
+                <label>Wallpaper Image</label>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileUpload(e, 'wallpaper')}
+                  className={styles.fileInput}
+                />
+                {wallpaper && (
+                  <div className={styles.imagePreview}>
+                    <Label pointing="above">Preview</Label>
+                    <Image
+                      src={wallpaper instanceof File ? URL.createObjectURL(wallpaper) : extractImage(wallpaper).thumbnailUrl}
+                      size="small"
+                      rounded
+                      className={styles.previewImage}
+                    />
+                  </div>
+                )}
+              </Form.Field>
+            </Grid.Column>
+          </Grid.Row>
 
-          <Confirm
-            open={open}
-            onCancel={() => setOpen(false)}
-            onConfirm={() => handleDeleteScreenshot(selectedScreenshot)}
-            content="Are you sure you want to delete this screenshot?"
-          />
-        </Form.Field>
+          <Grid.Row>
+            <Grid.Column width={16}>
+              <Form.Field className={styles.fileUpload}>
+                <label>Screenshots</label>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => handleScreenShotsUpload(e, 'screenshots')}
+                  className={styles.fileInput}
+                />
 
-        <Form.Button type="submit" fluid loading={formik.isSubmitting}>
-          Submit
-        </Form.Button>
-      </Form >
-    </>
+                {Array.isArray(screenshots) && screenshots.length > 0 && (
+                  <div className={styles.screenshotsGrid}>
+                    {screenshots.map((screenshot, index) => (
+                      <div key={index} className={styles.screenshotItem}>
+                        <div className={styles.screenshotContent}>
+                          <Image
+                            src={screenshot instanceof File ? URL.createObjectURL(screenshot) : extractImage(screenshot).thumbnailUrl}
+                            size="small"
+                            rounded
+                          />
+                          <Icon
+                            name="delete"
+                            className={styles.deleteIcon}
+                            onClick={() => handleConfirmDelete(screenshot)}
+                          />
+                        </div>
+                        <Label basic className={styles.screenshotLabel}>
+                          {screenshot instanceof File ? screenshot.name : extractImage(screenshot).name}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Form.Field>
+            </Grid.Column>
+          </Grid.Row>
+        </Grid>
+
+        <div className={styles.formActions}>
+          <Button type="button" onClick={onClose} className={styles.cancelButton}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            loading={isSubmitting}
+            disabled={isSubmitting}
+            className={styles.submitButton}
+            primary
+          >
+            {gameId ? 'Update Game' : 'Create Game'}
+          </Button>
+        </div>
+
+        <Confirm
+          open={open}
+          onCancel={() => setOpen(false)}
+          onConfirm={() => handleDeleteScreenshot(selectedScreenshot)}
+          content="Are you sure you want to delete this screenshot?"
+          className={styles.confirmModal}
+        />
+      </Form>
+    </div>
   );
 }
