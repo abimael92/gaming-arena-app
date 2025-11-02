@@ -1,4 +1,4 @@
-import { Form } from 'semantic-ui-react';
+import { Form, Button } from 'semantic-ui-react'; // Import Button separately
 import { useFormik } from 'formik';
 import { User } from '@/api';
 import { useAuth } from '@/hooks';
@@ -7,7 +7,7 @@ import styles from './ChangePasswordForm.module.scss';
 
 const userCtrl = new User();
 
-export function ChangePasswordForm() {
+export function ChangePasswordForm({ onCancel }) {
   const { user, logout } = useAuth();
 
   const formik = useFormik({
@@ -24,9 +24,17 @@ export function ChangePasswordForm() {
     },
   });
 
+  const handleCancel = () => {
+    formik.handleReset();
+    if (onCancel) onCancel();
+  };
+
   return (
     <Form onSubmit={formik.handleSubmit} className={styles.form}>
-      <label>Change password</label>
+      <div className={styles.formHeader}>
+        <h4>Change Password</h4>
+      </div>
+
       <Form.Input
         type="password"
         name="password"
@@ -43,9 +51,20 @@ export function ChangePasswordForm() {
         onChange={formik.handleChange}
         error={formik.errors.repeatPassword}
       />
-      <Form.Button type="submit" loading={formik.isSubmitting}>
-        Submit
-      </Form.Button>
+
+
+      <div className={styles.actionButtons}>
+        <Form.Button type="submit" loading={formik.isSubmitting} primary>
+          Update Password
+        </Form.Button>
+        <Button
+          type="button"
+          onClick={handleCancel}
+          className={styles.cancelButton}
+        >
+          Cancel
+        </Button>
+      </div>
     </Form>
   );
 }
